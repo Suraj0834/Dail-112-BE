@@ -52,9 +52,15 @@ app.use(helmet({
 }));
 
 // CORS - Allow only known origins in production
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+    : ['https://effervescent-pixie-9d565d.netlify.app'];
 const corsOptions = {
     origin: process.env.NODE_ENV === 'production'
-        ? [process.env.ALLOWED_ORIGIN || 'https://dial112.gov.in']
+        ? (origin, callback) => {
+            if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+            return callback(new Error(`CORS: origin ${origin} not allowed`));
+          }
         : '*',
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],

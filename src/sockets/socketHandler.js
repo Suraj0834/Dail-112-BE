@@ -20,7 +20,9 @@ const logger = require('../utils/logger');
 function initSockets(httpServer) {
     const io = new Server(httpServer, {
         cors: {
-            origin: '*',     // Restrict in production
+            origin: process.env.ALLOWED_ORIGINS
+                ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+                : ['https://effervescent-pixie-9d565d.netlify.app'],
             methods: ['GET', 'POST']
         },
         pingTimeout: 60000,
