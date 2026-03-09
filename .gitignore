@@ -1,0 +1,30 @@
+# ── Dependencies ─────────────────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-error.log*
+yarn-debug.log*
+package-lock.json
+
+# ── Environment variables (NEVER commit secrets) ──────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Uploaded files (served from Cloudinary in production) ────────────────────
+uploads/
+
+# ── Logs ─────────────────────────────────────────────────────────────────────
+logs/
+*.log
+
+# ── OS / Editor ───────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# ── Build / Temp ──────────────────────────────────────────────────────────────
+dist/
+build/
+tmp/
+.cache/
