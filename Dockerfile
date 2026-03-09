@@ -11,13 +11,13 @@ WORKDIR /usr/src/app
 
 # Copy package dependencies first for caching layers
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm install --omit=dev
 
 # Copy application source
 COPY . .
 
 # Expose backend port
-EXPOSE 5000
+EXPOSE 5001
 
 # Start backend via PM2
 CMD ["pm2-runtime", "ecosystem.config.js", "--env", "production"]
