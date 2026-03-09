@@ -6,18 +6,18 @@ module.exports = {
     apps: [
         {
             name: 'dial112-api',
-            script: './server.js',
-            instances: 'max',               // Leverage all available CPU cores
-            exec_mode: 'cluster',           // Run multiple node processes
-            watch: false,                   // Disable watch mode in production
-            max_memory_restart: '1G',       // Graceful reload if memory exceeds 1GB
+            script: './src/server.js',
+            instances: 1,                   // Free tier: 1 instance
+            exec_mode: 'fork',
+            watch: false,
+            max_memory_restart: '400M',
             env: {
                 NODE_ENV: 'development',
-                PORT: 5000,
+                PORT: 5001,
             },
             env_production: {
                 NODE_ENV: 'production',
-                PORT: 5000,
+                PORT: 5001,
             },
             log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
             error_file: './logs/pm2-err.log',
