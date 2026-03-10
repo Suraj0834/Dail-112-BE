@@ -20,6 +20,9 @@ const transporter = nodemailer.createTransport({
         user: process.env.MAIL_USER,
         pass: process.env.MAIL_PASS,
     },
+    connectionTimeout: 10_000,  // 10s to establish TCP connection
+    greetingTimeout:   10_000,  // 10s for SMTP greeting
+    socketTimeout:     15_000,  // 15s of socket inactivity before giving up
 });
 
 /**
