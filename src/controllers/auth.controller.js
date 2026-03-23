@@ -169,8 +169,12 @@ async function forgotPassword(req, res) {
         .select('+resetOtp +resetOtpExpiry');
 
     if (user) {
+        // Log email config for debugging (sanitize password)
+        logger.info(`🔧 Email Config: host=${process.env.MAIL_HOST}, port=${process.env.MAIL_PORT}, user=${process.env.MAIL_USER}, secure=${process.env.MAIL_PORT === '465'}`);
+
         // Generate cryptographically secure 6-digit OTP
         const otp = String(crypto.randomInt(100000, 999999));
+        logger.info(`📧 Attempting to send OTP to ${user.email}`);
 
         // Hash the OTP before storing (SHA-256 is fine here — short-lived token)
         const otpHash = crypto.createHash('sha256').update(otp).digest('hex');
@@ -181,15 +185,24 @@ async function forgotPassword(req, res) {
 
         try {
             await sendOtpEmail(user.email, otp, user.name);
-            logger.info(`Password reset OTP sent to ${user.email}`);
+            logger.info(`✅ Password reset OTP sent successfully to ${user.email}`);
         } catch (mailErr) {
             // Clear the OTP so the user can retry cleanly
             user.resetOtp       = null;
             user.resetOtpExpiry = null;
             await user.save({ validateBeforeSave: false });
-            logger.error('Mailer error during forgot-password:', mailErr);
+
+            // Log detailed error information
+            logger.error('❌ Mailer error during forgot-password:');
+            logger.error(`Error message: ${mailErr.message}`);
+            logger.error(`Error code: ${mailErr.code}`);
+            logger.error(`Error command: ${mailErr.command}`);
+            logger.error(`Full error:`, mailErr);
+
             throw new AppError('Failed to send OTP email. Please try again later.', 500);
         }
+    } else {
+        logger.warn(`⚠️ Forgot-password requested for non-existent email: ${email}`);
     }
 
     // Always return the same response (security: don't reveal account existence)

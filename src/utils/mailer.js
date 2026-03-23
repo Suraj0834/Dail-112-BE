@@ -33,6 +33,9 @@ const transporter = nodemailer.createTransport({
  * @returns {Promise<void>}
  */
 const sendOtpEmail = async (to, otp, name = 'User') => {
+    const logger = require('./logger');
+    logger.info(`📨 sendOtpEmail called: to=${to}, name=${name}`);
+
     const displayName = name.split(' ')[0]; // First name only
 
     const htmlContent = `
@@ -121,13 +124,22 @@ const sendOtpEmail = async (to, otp, name = 'User') => {
 </body>
 </html>`;
 
-    await transporter.sendMail({
-        from:    `"Dial-112 Security" <${process.env.MAIL_USER}>`,
-        to,
-        subject: `${otp} is your Dial-112 password reset OTP`,
-        html:    htmlContent,
-        text:    `Hi ${displayName},\n\nYour Dial-112 password reset OTP is: ${otp}\n\nThis OTP expires in 10 minutes. If you did not request this, please ignore this email.\n\n— Dial-112 Team`,
-    });
+    try {
+        logger.info(`🔌 Attempting SMTP connection to ${process.env.MAIL_HOST}:${process.env.MAIL_PORT}`);
+
+        const info = await transporter.sendMail({
+            from:    `"Dial-112 Security" <${process.env.MAIL_USER}>`,
+            to,
+            subject: `${otp} is your Dial-112 password reset OTP`,
+            html:    htmlContent,
+            text:    `Hi ${displayName},\n\nYour Dial-112 password reset OTP is: ${otp}\n\nThis OTP expires in 10 minutes. If you did not request this, please ignore this email.\n\n— Dial-112 Team`,
+        });
+
+        logger.info(`✅ Email sent successfully: messageId=${info.messageId}, response=${info.response}`);
+    } catch (error) {
+        logger.error(`❌ SMTP Error in sendOtpEmail:`, error);
+        throw error;
+    }
 };
 
 module.exports = { sendOtpEmail };
