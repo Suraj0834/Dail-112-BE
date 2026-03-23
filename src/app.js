@@ -40,6 +40,10 @@ const criminalsRoutes = require('./routes/criminals.routes');
 
 const app = express();
 
+// Trust proxy - Required when behind Render/Heroku/Cloudflare reverse proxy
+// Allows rate limiter to correctly identify users via X-Forwarded-For header
+app.set('trust proxy', 1);
+
 // =============================================================================
 // SECURITY MIDDLEWARE
 // =============================================================================
